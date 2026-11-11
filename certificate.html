@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-page="viewer">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Certificate | Harsh Gohel</title>
+<meta name="theme-color" content="#6F4E37">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236F4E37'/%3E%3Ctext x='32' y='42' font-family='Arial' font-size='28' font-weight='700' text-anchor='middle' fill='%23E6E0F0'%3EHG%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<script>
+/* runs before the page paints: if we arrived by clicking a link, the slide curtain is already covering the screen */
+(function(){
+  var r = document.documentElement; r.classList.add('js');
+  try { var ss = window.sessionStorage; if (ss.getItem('hg-wipe')) { r.classList.add('wipe-enter'); ss.removeItem('hg-wipe'); } } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="wipe" id="wipe" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="index.html">Harsh Gohel</a>
+    <nav class="menu" style="display:flex;position:static;background:none;border:0;padding:0" aria-label="Main">
+      <a class="btn btn-sm btn-ghost-light" href="index.html#certificates">Back to certificates</a>
+    </nav>
+  </div>
+</header>
+
+<div id="page">
+
+<main id="main" class="sec viewer">
+  <div class="ribbons ribbons--alt" aria-hidden="true">
+    <img class="rb rb-a" src="assets/ribbon-a.svg" alt="" width="760" height="460">
+    <img class="rb rb-b" src="assets/ribbon-b.svg" alt="" width="720" height="340">
+  </div>
+  <div class="wrap">
+
+    <div id="found" hidden>
+      <div class="crumbs">
+        <a class="btn btn-sm" href="index.html#certificates">All certificates</a>
+        <a class="btn btn-sm" href="index.html">Portfolio home</a>
+      </div>
+      <h1 id="vTitle"></h1>
+      <p class="v-note" id="vIssuer"></p>
+
+      <div class="viewer-grid">
+        <div class="cert-frame tilt" data-tilt="2.5">
+          <img id="vImg" alt="">
+        </div>
+
+        <aside class="v-side">
+          <div class="card">
+            <dl>
+              <div><dt>Course</dt><dd id="vCourse"></dd></div>
+              <div><dt>Issued by</dt><dd id="vIssuerDd"></dd></div>
+              <div id="vDateRow"><dt>Date</dt><dd id="vDate"></dd></div>
+              <div id="vCodeRow"><dt>Certificate code</dt><dd id="vCode"></dd></div>
+            </dl>
+          </div>
+          <div class="v-actions">
+            <a class="btn btn-primary" id="vDownload" download>Download PDF</a>
+            <a class="btn" id="vOpen" target="_blank" rel="noopener">Open PDF in a new tab</a>
+          </div>
+          <div class="v-nav">
+            <a class="btn btn-sm" id="vPrev" hidden>Previous certificate</a>
+            <a class="btn btn-sm" id="vNext" hidden>Next certificate</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div id="missing" hidden>
+      <h1>Certificate not found</h1>
+      <p class="section-intro" style="margin-top:12px">That certificate link doesn't match anything in the list. Go back and pick one from the portfolio.</p>
+      <a class="btn btn-primary" href="index.html#certificates">Back to certificates</a>
+    </div>
+
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <strong>Harsh Gohel</strong>
+    <a href="index.html">Back to portfolio</a>
+  </div>
+</footer>
+
+</div><!-- /#page -->
+
+<script src="certificates.js"></script>
+<script src="page.js"></script>
+<script>
+(function(){
+  const list = window.CERTIFICATES || [];
+  const slug = new URLSearchParams(location.search).get('c');
+  const i = list.findIndex(c => c.slug === slug);
+  const $ = id => document.getElementById(id);
+
+  if (i < 0) { $('missing').hidden = false; document.title = 'Certificate not found | Harsh Gohel'; return; }
+
+  const c = list[i];
+  $('found').hidden = false;
+  document.title = c.title + ' | Harsh Gohel';
+  $('vTitle').textContent = c.title;
+  $('vIssuer').textContent = c.issuer;
+  $('vCourse').textContent = c.title;
+  $('vIssuerDd').textContent = c.issuer;
+  if (c.date) $('vDate').textContent = c.date; else $('vDateRow').hidden = true;
+  if (c.code) $('vCode').textContent = c.code; else $('vCodeRow').hidden = true;
+
+  const img = $('vImg');
+  img.src = 'certificates/' + c.slug + '.webp';
+  img.alt = 'Certificate of completion: ' + c.title + ', issued to Harsh Gohel by ' + c.issuer;
+
+  const pdf = 'certificates/' + c.slug + '.pdf';
+  $('vDownload').href = pdf; $('vDownload').setAttribute('download', c.slug + '.pdf');
+  $('vOpen').href = pdf;
+
+  const link = (el, item) => { if (!item) return; el.hidden = false; el.href = 'certificate.html?c=' + encodeURIComponent(item.slug); el.textContent = (el.id === 'vPrev' ? 'Previous: ' : 'Next: ') + item.title; };
+  link($('vPrev'), list[i - 1]); link($('vNext'), list[i + 1]);
+
+  // ribbons follow the cursor in 3D
+  const host = document.getElementById('main'), rb = host.querySelector('.ribbons');
+  host.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    const r = host.getBoundingClientRect();
+    rb.style.setProperty('--mx', (((e.clientX - r.left) / r.width - .5) * 2).toFixed(3));
+    rb.style.setProperty('--my', (((e.clientY - r.top) / r.height - .5) * 2).toFixed(3));
+  });
+  host.addEventListener('pointerleave', () => { rb.style.setProperty('--mx', '0'); rb.style.setProperty('--my', '0'); });
+
+  // gentle 3D tilt on the certificate (mouse only)
+  const el = document.querySelector('[data-tilt]'), max = 2.5;
+  el.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    const r = el.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+    el.style.setProperty('--ry', ((px - .5) * 2 * max).toFixed(2) + 'deg');
+    el.style.setProperty('--rx', ((.5 - py) * 2 * max).toFixed(2) + 'deg');
+    el.style.setProperty('--gx', (px * 100) + '%'); el.style.setProperty('--gy', (py * 100) + '%'); el.style.setProperty('--go', '1');
+  });
+  el.addEventListener('pointerleave', () => { el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg'); el.style.setProperty('--go', '0'); });
+})();
+</script>
+</body>
+</html>
